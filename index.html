@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성적PT — 성적을 올리는 실행 코치</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@700;900&display=swap');
+
+/* ── 컬러 시스템 ── */
+:root {
+  /* 다크 배경 팔레트 */
+  --bg-darkest: #111111;
+  --bg-dark:    #181818;
+  --bg-card:    #202020;
+  --bg-sub:     #282828;
+  --border:     #333333;
+
+  /* 라이트 배경 팔레트 */
+  --bg-white:   #ffffff;
+  --bg-light:   #f6f6f6;
+  --bg-lighter: #f0f0f0;
+  --border-lt:  #e0e0e0;
+
+  /* 텍스트 - 다크 배경용 */
+  --text-bright:  #f0f0f0;   /* 헤드라인 */
+  --text-main:    #d4d4d4;   /* 본문 */
+  --text-sub:     #a0a0a0;   /* 보조 */
+  --text-muted:   #686868;   /* 최소 */
+
+  /* 텍스트 - 라이트 배경용 */
+  --text-dark:    #1a1a1a;
+  --text-mid:     #444444;
+  --text-light:   #777777;
+
+  /* 포인트 */
+  --red:      #e8362a;
+  --red-dark: #c02a20;
+  --red-bg:   #fff0ef;
+  --red-dim:  rgba(232,54,42,0.15);
+  --gold:     #f0c040;
+  --green:    #34c77a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg-white);
+  color: var(--text-dark);
+  line-height: 1.75;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 레이아웃 ── */
+.wrap { max-width: 640px; margin: 0 auto; padding: 0 24px; }
+
+/* ── 공통 타이포 ── */
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.tag-red   { color: var(--red); }
+.tag-gray  { color: var(--text-sub); }
+.tag-white { color: rgba(255,255,255,0.45); }
+
+.h-section {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 900;
+  line-height: 1.45;
+  text-align: center;
+  word-break: keep-all;
+  margin-bottom: 12px;
+}
+.h-section.on-dark { color: var(--text-bright); }
+.h-section.on-light { color: var(--text-dark); }
+
+.sub-section {
+  font-size: 14px;
+  line-height: 1.85;
+  text-align: center;
+  word-break: keep-all;
+  margin-bottom: 44px;
+}
+.sub-section.on-dark { color: var(--text-sub); }
+.sub-section.on-light { color: var(--text-mid); font-weight: 500; }
+.sub-section.on-light.accent { color: var(--text-dark); font-weight: 700; font-size: 15px; }
+
+/* ── 버튼 ── */
+.btn-primary {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 16px 0;
+  width: 280px;
+  text-align: center;
+  border-radius: 8px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(232,54,42,0.35);
+}
+.btn-primary:hover { background: var(--red-dark); transform: translateY(-2px); }
+
+.btn-sm {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 13px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 3px 10px rgba(232,54,42,0.3);
+  transition: background 0.2s;
+}
+.btn-sm:hover { background: var(--red-dark); }
+
+.btn-outline {
+  display: inline-block;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 14px 0;
+  width: 280px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-outline:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+
+/* ────────────────────────────────────
+   상단 띠
+──────────────────────────────────── */
+.top-bar {
+  background: var(--bg-dark);
+  text-align: center;
+  padding: 13px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.02em;
+}
+.top-bar strong { color: #fff; font-weight: 700; }
+
+/* ────────────────────────────────────
+   히어로
+──────────────────────────────────── */
+.hero {
+  background: var(--bg-darkest);
+  text-align: center;
+  padding: 88px 24px 80px;
+}
+.hero h1 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(26px, 6.5vw, 42px);
+  color: var(--text-bright);
+  line-height: 1.45;
+  margin-bottom: 20px;
+  word-break: keep-all;
+}
+.hero h1 em { font-style: normal; color: var(--gold); }
+
+.hero-desc {
+  font-size: 16px;
+  color: var(--text-bright);
+  max-width: 460px;
+  margin: 0 auto 12px;
+  word-break: keep-all;
+  line-height: 1.9;
+  font-weight: 500;
+}
+.hero-desc-accent {
+  display: inline-block;
+  background: var(--red-dim);
+  border: 1px solid rgba(232,54,42,0.3);
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff9a95;
+  margin-bottom: 32px;
+  word-break: keep-all;
+  line-height: 1.6;
+}
+.hero-btns {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.hero-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ────────────────────────────────────
+   성적 변화
+──────────────────────────────────── */
+.results-wrap {
+  background: var(--bg-dark);
+  padding: 56px 24px 64px;
+}
+.results-label {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-sub);
+  margin-bottom: 28px;
+}
+.results-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-bright);
+  background: var(--red-dim);
+  border: 1px solid rgba(232,54,42,0.25);
+  border-radius: 8px;
+  padding: 12px 20px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.results-note strong { color: #ff9a95; }
+.result-cards {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+.rc-who {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-sub);
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+.rc-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.rc-item {
+  flex: 1;
+  min-width: 76px;
+  background: var(--bg-sub);
+  border-radius: 8px;
+  padding: 11px 12px;
+}
+.rc-subj {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 7px;
+}
+.rc-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+}
+.rc-from { font-size: 12px; color: var(--text-muted); }
+.rc-arrow { font-size: 10px; color: var(--red); }
+.rc-to { font-size: 16px; color: var(--text-bright); }
+.rc-badge {
+  font-size: 10px;
+  background: var(--red-dim);
+  color: #ff8a84;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 800;
+}
+.results-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+
+/* ────────────────────────────────────
+   문제 공감
+──────────────────────────────────── */
+.problem-section {
+  background: var(--bg-light);
+  padding: 80px 0;
+}
+.problem-list { display: flex; flex-direction: column; gap: 12px; }
+.problem-card {
+  background: var(--bg-white);
+  border-radius: 10px;
+  padding: 20px 22px;
+  border-left: 4px solid var(--border-lt);
+}
+.problem-card.hot { border-left-color: var(--red); }
+.pq {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.6;
+  margin-bottom: 8px;
+  word-break: keep-all;
+}
+.pa {
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.9;
+  word-break: keep-all;
+}
+.pa strong { color: var(--text-dark); font-weight: 700; }
+
+/* ────────────────────────────────────
+   미니 CTA
+──────────────────────────────────── */
+.mini-cta {
+  background: var(--red);
+  padding: 40px 24px;
+  text-align: center;
+}
+.mini-cta-msg {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 18px;
+  word-break: keep-all;
+  line-height: 1.6;
+}
+.btn-white {
+  display: inline-block;
+  background: #fff;
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 13px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+.mini-cta-hint {
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+}
+
+/* ────────────────────────────────────
+   서비스 상세
+──────────────────────────────────── */
+.service-section {
+  background: var(--bg-white);
+  padding: 80px 0;
+}
+.service-intro {
+  text-align: center;
+  margin-bottom: 60px;
+}
+.service-block {
+  border-top: 1px solid var(--border-lt);
+  padding: 52px 0;
+}
+.service-block:first-of-type { border-top: none; }
+.svc-num {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--red);
+  opacity: 0.55;
+  text-align: center;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.svc-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(18px, 3.5vw, 22px);
+  font-weight: 900;
+  color: var(--text-dark);
+  line-height: 1.5;
+  text-align: center;
+  word-break: keep-all;
+  margin-bottom: 12px;
+}
+.svc-desc {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.9;
+  text-align: center;
+  word-break: keep-all;
+  margin-bottom: 20px;
+}
+
+/* 피드백 박스 */
+.fb {
+  background: var(--bg-light);
+  border-left: 3px solid var(--red);
+  border-radius: 0 8px 8px 0;
+  padding: 18px 20px;
+  margin-top: 14px;
+}
+.fb + .fb { margin-top: 10px; }
+.fb-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.fb-body {
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.9;
+  word-break: keep-all;
+}
+.fb-body strong { color: var(--text-dark); font-weight: 700; }
+
+/* 플랜 박스 */
+.plan-box {
+  background: var(--bg-light);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-top: 14px;
+  border: 1px solid var(--border-lt);
+}
+.plan-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-light);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.plan-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.plan-row:last-child { margin-bottom: 0; }
+.plan-dot {
+  width: 5px; height: 5px;
+  background: var(--red);
+  border-radius: 50%;
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+.plan-txt { color: var(--text-mid); line-height: 1.75; word-break: keep-all; }
+.plan-txt strong { color: var(--text-dark); }
+
+/* ────────────────────────────────────
+   퇴출 제도
+──────────────────────────────────── */
+.expulsion-wrap {
+  background: var(--bg-white);
+  padding: 0 24px 64px;
+}
+.expulsion-box {
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--red-bg);
+  border: 1.5px solid rgba(232,54,42,0.2);
+  border-radius: 10px;
+  padding: 22px 26px;
+  text-align: center;
+}
+.expulsion-ttl {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--red);
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+.expulsion-txt {
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.85;
+  word-break: keep-all;
+}
+
+/* ────────────────────────────────────
+   진행 방식
+──────────────────────────────────── */
+.process-section {
+  background: var(--bg-darkest);
+  padding: 80px 0;
+}
+.process-steps { margin-top: 48px; }
+.process-step {
+  display: flex;
+  gap: 18px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--border);
+}
+.process-step:last-child { border-bottom: none; }
+.ps-badge {
+  width: 30px; height: 30px;
+  background: var(--red);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.ps-ttl {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 8px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.ps-body {
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.9;
+  word-break: keep-all;
+}
+.ps-body strong { color: var(--text-main); }
+
+/* ────────────────────────────────────
+   멘토
+──────────────────────────────────── */
+.mentor-section {
+  background: var(--bg-light);
+  padding: 80px 0;
+}
+.mentor-tasks { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.mentor-task {
+  background: var(--bg-white);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 14px;
+  border: 1px solid var(--border-lt);
+}
+.mt-icon { font-size: 16px; flex-shrink: 0; line-height: 1.6; }
+.mt-txt { color: var(--text-mid); line-height: 1.75; word-break: keep-all; }
+.mt-txt strong { color: var(--text-dark); font-weight: 700; }
+
+/* 멘토 구성진 */
+.roster-box {
+  background: var(--bg-white);
+  border: 1px solid var(--border-lt);
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.roster-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+.roster-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.roster-chip {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-lighter);
+  border: 1px solid var(--border-lt);
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+.roster-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  filter: blur(5px);
+  user-select: none;
+}
+.roster-t { font-size: 12px; color: var(--text-light); }
+
+/* 퀄리티 박스 */
+.quality-box {
+  background: var(--bg-white);
+  border: 1px solid var(--border-lt);
+  border-left: 4px solid var(--red);
+  border-radius: 10px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+.quality-ttl {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+.quality-desc {
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.85;
+  margin-bottom: 16px;
+  word-break: keep-all;
+}
+.quality-desc strong { color: var(--text-dark); }
+.qc-rows { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
+.qc-row { display: flex; align-items: center; gap: 10px; }
+.qc-lbl { font-size: 12px; color: var(--text-mid); width: 100px; flex-shrink: 0; }
+.qc-track {
+  flex: 1; height: 6px;
+  background: var(--border-lt);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.qc-fill { display: block; height: 100%; background: var(--red); border-radius: 3px; }
+.quality-note {
+  font-size: 12px;
+  color: var(--text-light);
+  padding-top: 12px;
+  border-top: 1px solid var(--border-lt);
+  word-break: keep-all;
+}
+
+/* ────────────────────────────────────
+   추천 / 비추천
+──────────────────────────────────── */
+.fit-section {
+  background: var(--bg-white);
+  padding: 80px 0;
+}
+.fit-cards { display: flex; flex-direction: column; gap: 12px; }
+.fit-card { border-radius: 12px; padding: 22px 24px; }
+.fit-yes { background: #f0fff8; border: 1.5px solid var(--green); }
+.fit-no  { background: var(--bg-light); border: 1.5px solid var(--border-lt); }
+.fit-ttl { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+.fit-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.fit-list li {
+  font-size: 13px;
+  color: var(--text-mid);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+.fit-list li::before { content: '·'; position: absolute; left: 0; color: var(--text-light); }
+.fit-yes .fit-list li::before { color: var(--green); }
+
+/* ────────────────────────────────────
+   3사 비교
+──────────────────────────────────── */
+.compare-section {
+  background: var(--bg-dark);
+  padding: 80px 0;
+}
+.compare-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+.compare-table thead tr { background: var(--bg-card); border-bottom: 1px solid var(--border); }
+.compare-table th {
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.compare-table th span { display: none; }
+.compare-table td {
+  padding: 13px 10px;
+  text-align: center;
+  color: var(--text-sub);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.65;
+  vertical-align: middle;
+  word-break: keep-all;
+  font-size: 13px;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.col-item {
+  text-align: left !important;
+  color: var(--text-main) !important;
+  font-size: 12px !important;
+  width: 90px !important;
+  padding-left: 14px !important;
+  word-break: keep-all !important;
+}
+.col-other { width: 28% !important; }
+.col-us {
+  background: var(--red-dim) !important;
+  color: var(--text-bright) !important;
+  width: 30% !important;
+}
+.col-us strong { color: #fff; }
+.compare-table th.col-us { color: var(--red) !important; font-size: 13px !important; }
+
+.compare-pts {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 26px 22px;
+}
+.compare-pts-lbl {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--red);
+  text-align: center;
+  margin-bottom: 20px;
+  letter-spacing: 0.04em;
+}
+.cp-items { display: flex; flex-direction: column; gap: 20px; }
+.cp-item { display: flex; gap: 14px; align-items: flex-start; }
+.cp-num {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--red);
+  flex-shrink: 0;
+  line-height: 1.2;
+  padding-top: 1px;
+}
+.cp-name { font-size: 14px; font-weight: 700; color: var(--text-bright); margin-bottom: 5px; word-break: keep-all; }
+.cp-desc { font-size: 13px; color: var(--text-sub); line-height: 1.85; word-break: keep-all; }
+
+/* ────────────────────────────────────
+   가격
+──────────────────────────────────── */
+.pricing-section {
+  background: var(--bg-light);
+  padding: 80px 0;
+}
+.pricing-highlight {
+  background: var(--bg-darkest);
+  border-radius: 12px;
+  padding: 26px 24px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.ph-title { font-size: 15px; font-weight: 700; color: var(--text-bright); margin-bottom: 8px; }
+.ph-desc { font-size: 13px; color: var(--text-sub); line-height: 1.85; word-break: keep-all; }
+.ph-desc strong { color: var(--gold); }
+
+.price-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+.price-card {
+  background: var(--bg-white);
+  border: 1.5px solid var(--border-lt);
+  border-radius: 12px;
+  padding: 26px 24px;
+}
+.price-card.featured {
+  border-color: var(--red);
+  background: var(--red-bg);
+}
+.pc-badge {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 100px;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.pc-name { font-size: 17px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
+.pc-price {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.pc-price span { font-size: 14px; font-weight: 400; color: var(--text-light); font-family: 'Noto Sans KR', sans-serif; }
+.pc-desc { font-size: 13px; color: var(--text-mid); line-height: 1.8; margin-top: 8px; word-break: keep-all; }
+
+.pricing-cta { text-align: center; }
+.pricing-flow {
+  margin-top: 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-mid);
+  line-height: 2;
+  background: var(--bg-lighter);
+  border-radius: 8px;
+  padding: 14px 20px;
+  display: inline-block;
+}
+
+/* ────────────────────────────────────
+   최종 CTA
+──────────────────────────────────── */
+.final-section {
+  background: var(--bg-darkest);
+  text-align: center;
+  padding: 88px 24px;
+}
+.final-section h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(22px, 4.5vw, 32px);
+  color: var(--text-bright);
+  line-height: 1.5;
+  margin-bottom: 14px;
+  word-break: keep-all;
+}
+.final-section p {
+  font-size: 14px;
+  color: var(--text-sub);
+  margin-bottom: 40px;
+  word-break: keep-all;
+  line-height: 1.9;
+}
+.final-section p strong {
+  color: var(--text-bright);
+  font-weight: 700;
+  font-size: 16px;
+  display: block;
+  margin-bottom: 8px;
+}
+.final-btns { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.kakao-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.kakao-link:hover { border-color: var(--text-sub); color: var(--text-bright); }
+
+/* ── 푸터 ── */
+.footer {
+  background: var(--bg-dark);
+  text-align: center;
+  padding: 24px 20px;
+  border-top: 1px solid var(--border);
+}
+.footer p { font-size: 12px; color: var(--text-muted); line-height: 2; }
+
+/* ── 모바일 ── */
+@media (max-width: 480px) {
+  .rc-grid { gap: 6px; }
+  .rc-item { min-width: 72px; padding: 9px 10px; }
+  .rc-to { font-size: 15px; }
+  .process-step { gap: 12px; }
+  .pc-price { font-size: 26px; }
+  .hero h1 { font-size: 24px; }
+  .pricing-highlight { padding: 20px 18px; }
+  .price-card { padding: 22px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 상단 띠 -->
+<div class="top-bar">
+  <strong>성적PT</strong> &nbsp;·&nbsp; 매일 1:1 피드백으로 공부 방식을 교정하는 실행 코치 서비스 &nbsp;·&nbsp; 4주 관리 25만원
+</div>
+
+<!-- 히어로 -->
+<section class="hero">
+  <h1>
+    분명히 열심히 했는데,<br>
+    <em>왜 나만 제자리인 걸까요?</em>
+  </h1>
+  <p class="hero-desc">
+    의지가 부족한 게 아닙니다.<br>
+    방법을 모르는 겁니다.
+  </p>
+  <p class="hero-desc-accent">
+    성적PT는 매일 실행하게 만들고<br>계속 가이드해주는 서비스입니다.
+  </p>
+  <div class="hero-btns">
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSff04h8c13zqpoTQ4xmuKi1fyqK-MWkoL8czwjv42eKtCdWkA/viewform" class="btn-primary">신청서 작성하기</a>
+    <a href="#service" class="btn-outline">서비스 자세히 보기 ↓</a>
+    <p class="hero-hint">확신이 없다면 1회 컨설팅(5만원)으로 먼저 확인하세요</p>
+  </div>
+</section>
+
+<!-- 성적 변화 -->
+<section class="results-wrap">
+  <p class="results-label">실제 회원 성적 변화 (26년 3월 → 5월) · 2개월 결과 · 모두 실제 데이터</p>
+  <div class="result-cards">
+
+    <div class="result-card">
+      <p class="rc-who">안OO · N수생</p>
+      <div class="rc-grid">
+        <div class="rc-item">
+          <p class="rc-subj">국어(화작)</p>
+          <div class="rc-change"><span class="rc-from">4등급</span><span class="rc-arrow">→</span><span class="rc-to">2등급</span><span class="rc-badge">⬆2</span></div>
+        </div>
+        <div class="rc-item">
+          <p class="rc-subj">수학(기하)</p>
+          <div class="rc-change"><span class="rc-from">4등급</span><span class="rc-arrow">→</span><span class="rc-to">2등급</span><span class="rc-badge">⬆2</span></div>
+        </div>
+        <div class="rc-item">
+          <p class="rc-subj">영어</p>
+          <div class="rc-change"><span class="rc-from">4등급</span><span class="rc-arrow">→</span><span class="rc-to">2등급</span><span class="rc-badge">⬆2</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <p class="rc-who">김OO · N수생</p>
+      <div class="rc-grid">
+        <div class="rc-item">
+          <p class="rc-subj">국어(언매)</p>
+          <div class="rc-change"><span class="rc-from">3등급</span><span class="rc-arrow">→</span><span class="rc-to">2등급</span><span class="rc-badge">⬆1</span></div>
+        </div>
+        <div class="rc-item">
+          <p class="rc-subj">수학(미적)</p>
+          <div class="rc-change"><span class="rc-from">4등급</span><span class="rc-arrow">→</span><span class="rc-to">3등급</span><span class="rc-badge">⬆1</span></div>
+        </div>
+        <div class="rc-item">
+          <p class="rc-subj">영어</p>
+          <div class="rc-change"><span class="rc-from">3등급</span><span class="rc-arrow">→</span><span class="rc-to">2등급</span><span class="rc-badge">⬆1</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <p class="rc-who">황OO · N수생</p>
+      <div class="rc-grid">
+        <div class="rc-item">
+          <p class="rc-subj">국어(화작)</p>
+          <div class="rc-change"><span class="rc-from">3등급</span><span class="rc-arrow">→</span><span class="rc-to">1등급</span><span class="rc-badge">⬆2</span></div>
+        </div>
+        <div class="rc-item">
+          <p class="rc-subj">수학(확통)</p>
+          <div class="rc-change"><span class="rc-from">4등급</span><span class="rc-arrow">→</span><span class="rc-to">1등급</span><span class="rc-badge">⬆3</span></div>
+        </div>
+        <div class="rc-item">
+          <p class="rc-subj">영어</p>
+          <div class="rc-change"><span class="rc-from">2등급</span><span class="rc-arrow">→</span><span class="rc-to">1등급</span><span class="rc-badge">⬆1</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <p class="results-note">3명 모두 <strong>국어·수학·영어 3과목 동시 상승</strong></p>
+</section>
+
+<!-- 문제 공감 -->
+<section class="problem-section">
+  <div class="wrap">
+    <span class="tag tag-red" style="display:block;text-align:center;">혹시 이런 적 없나요?</span>
+    <h2 class="h-section on-light">
+      열심히 해도 성적이 안 오르는<br>
+      학생들의 공통 패턴
+    </h2>
+    <p class="sub-section on-light">의지 부족이 아닙니다. 방법이 틀린 겁니다.</p>
+    <div class="problem-list">
+      <div class="problem-card hot">
+        <p class="pq">강의를 다 들었는데,<br>문제를 펼치면 어디서부터 풀어야 할지 모릅니다</p>
+        <p class="pa">강의를 들을 때 이해되는 건 <strong>강사의 사고 흐름을 빌린 것</strong>입니다. 강의를 끄면 그 흐름이 사라집니다. 인강 시청 시간이 자기 공부 시간보다 많다면, 지금 그 상태입니다.</p>
+      </div>
+      <div class="problem-card">
+        <p class="pq">오답 노트를 채웠는데,<br>시험장에서 비슷한 문제가 나오면 또 틀립니다</p>
+        <p class="pa">'다시 풀 수 있는가'에만 집중하면 한계가 옵니다. <strong>처음 보는 문제에 같은 원리를 적용할 수 있어야 진짜 복습</strong>입니다.</p>
+      </div>
+      <div class="problem-card">
+        <p class="pq">타이머는 10시간을 찍었는데,<br>실제로 뭘 했는지 설명이 안 됩니다</p>
+        <p class="pa">계획과 행동 지침 없이 앉으면 공부가 아니라 <strong>'공부하는 척'</strong>이 됩니다. 하기 편한 것만 하거나, 불안한 과목을 건드리다가 하루가 끝납니다.</p>
+      </div>
+      <div class="problem-card">
+        <p class="pq">교재를 1~2번 훑고 시험장에 갑니다</p>
+        <p class="pa">몇 회독을 해야 실전에서 꺼내 쓸 수 있는지 <strong>기준이 없습니다.</strong> 강사 판서를 옮겨 적고, 한두 번 훑은 걸 끝냈다고 생각합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 미니 CTA -->
+<div class="mini-cta">
+  <p class="mini-cta-msg">
+    확신이 없다면<br>
+    먼저 1회 컨설팅으로 확인하세요
+  </p>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSff04h8c13zqpoTQ4xmuKi1fyqK-MWkoL8czwjv42eKtCdWkA/viewform" class="btn-white">1회 컨설팅 신청하기 (5만원)</a>
+  <p class="mini-cta-hint">방향이 잡히면 추가 20만원만으로 4주 관리 전환 가능</p>
+</div>
+
+<!-- 서비스 상세 -->
+<section class="service-section" id="service">
+  <div class="wrap">
+    <div class="service-intro">
+      <span class="tag tag-red" style="display:block;text-align:center;">성적PT는 이걸 해드립니다</span>
+      <h2 class="h-section on-light">
+        커리 추천은 유튜브에 넘칩니다.<br>
+        아는데 안 하는 게 문제입니다.
+      </h2>
+      <p class="sub-section on-light">성적PT는 매일 실행하게 만들고 계속 가이드해주는 서비스입니다.</p>
+    </div>
+
+    <div class="service-block">
+      <p class="svc-num">01</p>
+      <h3 class="svc-title">내 공부의 어디가 문제인지<br>정확히 짚어드립니다</h3>
+      <p class="svc-desc">완강 목록, 인강 진도, 기출 적용 여부, 오답 복습 방식까지 전부 확인합니다.<br>문제를 보고 어떤 개념을 떠올려야 하는지,<br>그 개념을 풀이에 어떻게 연결하는지 — 사고 과정을 직접 확인합니다.</p>
+      <div class="fb">
+        <p class="fb-tag">실제 피드백 예시</p>
+        <p class="fb-body">국어는 확실히 독서가 문제입니다만, 화작/문학을 안정적으로 소화해낸다면 독서도 자연스럽게 해결됩니다. 화작 문풀은 잘 되고 있습니다. <strong>지금은 정확도보다 시간 줄이는 것에 더 집중하세요.</strong></p>
+      </div>
+    </div>
+
+    <div class="service-block">
+      <p class="svc-num">02</p>
+      <h3 class="svc-title">매주 일요일,<br>다음 주 계획표 + 상세 가이드가 나옵니다</h3>
+      <p class="svc-desc">단순히 "수학 3시간"이 아닙니다.<br>행동 단위까지 쪼갠 가이드가 함께 나옵니다.</p>
+      <div class="plan-box">
+        <p class="plan-tag">주간 가이드에 포함되는 것</p>
+        <div class="plan-row"><div class="plan-dot"></div><p class="plan-txt">이 강의를 <strong>어떻게 활용하고</strong> 강의 후 무엇을 해야 하는지</p></div>
+        <div class="plan-row"><div class="plan-dot"></div><p class="plan-txt">오답을 분석할 때 <strong>어디까지 파고들어야</strong> 하는지</p></div>
+        <div class="plan-row"><div class="plan-dot"></div><p class="plan-txt">이 개념은 <strong>몇 회독을 해야</strong> 실전에서 꺼내 쓸 수 있는지</p></div>
+        <div class="plan-row"><div class="plan-dot"></div><p class="plan-txt">오늘 몇 시간을 쓰고, <strong>내일은 무엇을 먼저</strong> 해야 하는지</p></div>
+      </div>
+    </div>
+
+    <div class="service-block">
+      <p class="svc-num">03</p>
+      <h3 class="svc-title">공부 방식이 틀렸을 때,<br>당일 피드백으로 바로 수정됩니다</h3>
+      <p class="svc-desc">공부 인증 제출 → 멘토가 당일 확인 → 구체적 교정 피드백 전달.<br>잘못된 습관이 굳어지기 전에 매일 교정됩니다.</p>
+      <div class="fb">
+        <p class="fb-tag">실제 피드백 예시 — 수학 커리큘럼 재설계</p>
+        <p class="fb-body">극한연속의 가장 기본적인 개념을 까먹은 상황이면 미분/적분 진도를 나가는 것이 불가능합니다. <strong>경우에 따라서는 킥오프 중단 및 파운데이션 재복습도 할 수 있습니다.</strong></p>
+      </div>
+      <div class="fb">
+        <p class="fb-tag">실제 피드백 예시 — 중간점검</p>
+        <p class="fb-body">수능은 장기전, 6평 점수에 급급하지 말 것. <strong>수2 파운데이션부터 다시, 근본적인 개념 재점검 필요.</strong> 화작 36,40,45는 문제당 최소 1분 30초는 쓸 각오 할 것.</p>
+      </div>
+    </div>
+
+    <div class="service-block">
+      <p class="svc-num">04</p>
+      <h3 class="svc-title">문제 푸는 사고 순서를<br>설계해드립니다</h3>
+      <p class="svc-desc">강의를 들어도 문제 앞에서 막히는 이유는<br>어떤 순서로 생각해야 하는지를 모르기 때문입니다.<br>그 사고 흐름을 직접 만들어드립니다.</p>
+      <div class="fb">
+        <p class="fb-tag">실제 피드백 예시 — 수학 사고 순서</p>
+        <p class="fb-body">|a3| = a5일 경우, a3은 음수고 a5는 양수. <strong>→ 공차 양수, a4 = 0까지 사고방식이 이어져야 한다.</strong> 틀리는 것을 고르는 문제 → 나머지 4개의 선지는 전부 맞는 선지. → 지문이 이해 안 될 때는 선지를 통해 내용을 파악하는 것도 좋은 방법.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 퇴출 제도 -->
+<div class="expulsion-wrap">
+  <p style="text-align:center;font-size:15px;font-weight:900;color:var(--red);margin-bottom:12px;letter-spacing:0.04em;">잠깐만요.</p>
+  <div class="expulsion-box">
+    <p class="expulsion-ttl">성적PT 퇴출 제도</p>
+    <p class="expulsion-txt">과제 미이행 3회 시 예외 없이 퇴출입니다.<br>변화할 준비가 된 학생에게만 집중하기 위해서입니다.<br>퇴출 조건이 있다는 건, <strong>한 명 한 명을 진지하게 관리한다는 뜻</strong>입니다.</p>
+  </div>
+</div>
+
+<!-- 진행 방식 -->
+<section class="process-section">
+  <div class="wrap">
+    <span class="tag tag-red" style="display:block;text-align:center;">신청하면 실제로 이렇게 진행됩니다</span>
+    <h2 class="h-section on-dark">4단계로 진행됩니다</h2>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="ps-badge">1</div>
+        <div>
+          <p class="ps-ttl">첫 상담 (60~90분)</p>
+          <p class="ps-body">공부해온 방식, 교재, 인강 진도, 모의고사 결과를 전부 확인합니다. <strong>성적을 막고 있는 문제점을 진단하고 우선순위를 정해 바로 해결합니다.</strong></p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="ps-badge">2</div>
+        <div>
+          <p class="ps-ttl">첫 상담 후 — 일주일 계획표 + 상세 가이드 즉시 전달</p>
+          <p class="ps-body">과목별로 무엇을, 어떻게, 몇 회독으로 해야 하는지 <strong>행동 단위까지 쪼갠 가이드</strong>가 함께 나옵니다.</p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="ps-badge">3</div>
+        <div>
+          <p class="ps-ttl">평일 — 디스코드 개별 채널에서 매일 관리</p>
+          <p class="ps-body">공부 인증 및 과제 제출 → 멘토 당일 피드백. <strong>진도 기록 미작성 시 멘토가 직접 연락합니다. 방치는 없습니다.</strong></p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="ps-badge">4</div>
+        <div>
+          <p class="ps-ttl">토요일 — 상세 피드백 (30~60분)</p>
+          <p class="ps-body">음성·화면공유로 실제 체화 정도를 직접 확인합니다. <strong>다음 주 계획과 가이드를 새로 설계해서 전달합니다.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 멘토 -->
+<section class="mentor-section">
+  <div class="wrap">
+    <span class="tag tag-red" style="display:block;text-align:center;">성적PT 멘토는 누구인가요?</span>
+    <h2 class="h-section on-light">단순히 성적이 좋은 사람이 아닙니다</h2>
+    <p class="sub-section on-light">학생의 공부 습관을 진단하고, 매일 교정하고, 실행시키는<br><strong>성적PT</strong> 교육을 받고 투입된 전문 인력입니다.</p>
+
+    <div class="roster-box">
+      <p class="roster-lbl">현재 활동 중인 멘토진 · 계속 모집 중</p>
+      <div class="roster-grid">
+        <div class="roster-chip"><span class="roster-name">규용</span><span class="roster-t">t</span></div>
+        <div class="roster-chip"><span class="roster-name">우혁</span><span class="roster-t">t</span></div>
+        <div class="roster-chip"><span class="roster-name">지민</span><span class="roster-t">t</span></div>
+        <div class="roster-chip"><span class="roster-name">다연</span><span class="roster-t">t</span></div>
+        <div class="roster-chip"><span class="roster-name">서연</span><span class="roster-t">t</span></div>
+        <div class="roster-chip"><span class="roster-name">화안</span><span class="roster-t">t</span></div>
+        <div class="roster-chip"><span class="roster-name">용현</span><span class="roster-t">t</span></div>
+      </div>
+    </div>
+
+    <div class="quality-box">
+      <p class="quality-ttl">📊 멘토 퀄리티 관리 시스템</p>
+      <p class="quality-desc">성적PT는 특정 멘토 한 명에 의존하지 않습니다.<br>모든 멘토는 <strong>매주 AI 기반 평가 보고서</strong>로 점수를 받으며, 기준을 통과한 멘토만 지속 활동합니다. 성적PT는 검증된 멘토를 계속 확보하며 성장합니다.</p>
+      <div class="qc-rows">
+        <div class="qc-row"><span class="qc-lbl">진단 정확도</span><span class="qc-track"><span class="qc-fill" style="width:90%"></span></span></div>
+        <div class="qc-row"><span class="qc-lbl">행동강령 구체성</span><span class="qc-track"><span class="qc-fill" style="width:85%"></span></span></div>
+        <div class="qc-row"><span class="qc-lbl">강제성·독려</span><span class="qc-track"><span class="qc-fill" style="width:80%"></span></span></div>
+        <div class="qc-row"><span class="qc-lbl">피드백 명확성</span><span class="qc-track"><span class="qc-fill" style="width:88%"></span></span></div>
+      </div>
+      <p class="quality-note">기준 미달 멘토는 교체됩니다. 시스템이 퀄리티를 보장합니다.</p>
+    </div>
+
+    <div class="mentor-tasks">
+      <div class="mentor-task"><span class="mt-icon">📌</span><p class="mt-txt">매일 공부 인증 확인 → <strong>당일 구체적 피드백</strong></p></div>
+      <div class="mentor-task"><span class="mt-icon">📋</span><p class="mt-txt">매주 일요일 → <strong>다음 주 계획 + 행동 단위 가이드</strong> 설계</p></div>
+      <div class="mentor-task"><span class="mt-icon">💡</span><p class="mt-txt">강의·오답 <strong>소화 방법과 사고 순서</strong> 설계</p></div>
+      <div class="mentor-task"><span class="mt-icon">✂️</span><p class="mt-txt">과목별 우선순위를 잘라 <strong>오늘 할 것을 명확하게</strong> 지정</p></div>
+      <div class="mentor-task"><span class="mt-icon">🎙</span><p class="mt-txt">텍스트로 해결 안 되는 부분 → <strong>음성·화면 공유로 직접 잡기</strong></p></div>
+      <div class="mentor-task"><span class="mt-icon">📞</span><p class="mt-txt">멘토 가이드 이행률 저하 시 → <strong>바로 전화</strong></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 추천 / 비추천 -->
+<section class="fit-section">
+  <div class="wrap">
+    <span class="tag tag-red" style="display:block;text-align:center;">성적PT가 맞는 학생</span>
+    <h2 class="h-section on-light">모든 학생에게 맞는 서비스가 아닙니다</h2>
+    <p class="sub-section on-light accent">변화할 준비가 된 학생에게만 집중합니다.</p>
+    <div class="fit-cards">
+      <div class="fit-card fit-yes">
+        <p class="fit-ttl">✅ 이런 분에게 맞습니다</p>
+        <ul class="fit-list">
+          <li>열심히 하고 있는데 성적이 제자리인 학생</li>
+          <li>뭘 어떻게 공부해야 할지 방향이 없는 학생</li>
+          <li>혼자 하면 미루고, 누군가 강제해줘야 하는 학생</li>
+          <li>인강은 많이 들었는데 문제 앞에서 막히는 학생</li>
+          <li>지금 당장 공부 방식을 바꿔야 한다는 걸 아는 학생</li>
+        </ul>
+      </div>
+      <div class="fit-card fit-no">
+        <p class="fit-ttl">❌ 이런 분에게는 맞지 않습니다</p>
+        <ul class="fit-list">
+          <li>피드백을 받아도 실제로 움직이지 않을 학생</li>
+          <li>지금 성적에 만족하고 유지만 원하는 학생</li>
+          <li>혼자서 계획을 세우고 완벽히 실행할 수 있는 학생</li>
+          <li>과제 이행 없이 서비스만 소비하려는 학생</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3사 비교 -->
+<section class="compare-section">
+  <div class="wrap">
+    <span class="tag tag-red" style="display:block;text-align:center;">서비스 비교</span>
+    <h2 class="h-section on-dark">성적PT가 다른 이유</h2>
+    <p class="sub-section on-dark" style="color:var(--text-main);font-weight:500;">공부법 컨설팅과 챌린지 관리, 두 가지를 비교해봤습니다.</p>
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th class="col-item">항목</th>
+            <th class="col-other">공부법 컨설팅</th>
+            <th class="col-other">챌린지 관리</th>
+            <th class="col-us">성적PT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-item">운영 방식</td>
+            <td>1회 PDF 전달</td>
+            <td>봇 자동화<br>+ 그룹 관리</td>
+            <td class="col-us"><strong>멘토 1:1<br>매일 직접</strong></td>
+          </tr>
+          <tr>
+            <td class="col-item">피드백 주기</td>
+            <td>월 1~5회</td>
+            <td>자동 체크</td>
+            <td class="col-us"><strong>매일</strong></td>
+          </tr>
+          <tr>
+            <td class="col-item">공부 방식 교정</td>
+            <td>✅ 있음</td>
+            <td>❌ 없음</td>
+            <td class="col-us"><strong>✅ 매일 교정</strong></td>
+          </tr>
+          <tr>
+            <td class="col-item">주간 계획 설계</td>
+            <td>❌ 없음</td>
+            <td>△ 자동 배정</td>
+            <td class="col-us"><strong>✅ 맞춤 설계</strong></td>
+          </tr>
+          <tr>
+            <td class="col-item">사고 순서 설계</td>
+            <td>✅ 있음</td>
+            <td>❌ 없음</td>
+            <td class="col-us"><strong>✅ 있음</strong></td>
+          </tr>
+          <tr>
+            <td class="col-item">멘토<br>퀄리티 관리</td>
+            <td>1인 의존</td>
+            <td>△ 일부</td>
+            <td class="col-us"><strong>매주 AI 평가<br>기준 미달 교체</strong></td>
+          </tr>
+          <tr>
+            <td class="col-item">가격</td>
+            <td>35~50만원+</td>
+            <td>20~30만원</td>
+            <td class="col-us"><strong>25만원 / 4주</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="compare-pts">
+      <p class="compare-pts-lbl">성적PT만의 결정적 차이</p>
+      <div class="cp-items">
+        <div class="cp-item">
+          <span class="cp-num">01</span>
+          <div>
+            <p class="cp-name">봇이 아닌 사람이 매일 직접 읽습니다</p>
+            <p class="cp-desc">자동화 시스템이 아닙니다. 멘토가 매일 공부 기록을 읽고 그날 교정합니다. 잘못된 방향이 굳기 전에 잡습니다.</p>
+          </div>
+        </div>
+        <div class="cp-item">
+          <span class="cp-num">02</span>
+          <div>
+            <p class="cp-name">창업자 1인에 의존하지 않습니다</p>
+            <p class="cp-desc">멘토 7명이 매주 AI 기반 평가를 받습니다. 특정 멘토가 없어도 시스템이 퀄리티를 유지합니다.</p>
+          </div>
+        </div>
+        <div class="cp-item">
+          <span class="cp-num">03</span>
+          <div>
+            <p class="cp-name">공부법만 알려주고 끝나지 않습니다</p>
+            <p class="cp-desc">컨설팅 후 혼자 실행해야 하는 구조가 아닙니다. 4주 내내 매일 붙어서 실행까지 만들어냅니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 가격 -->
+<section class="pricing-section" id="pricing">
+  <div class="wrap">
+    <span class="tag tag-red" style="display:block;text-align:center;">지금 신청하세요</span>
+    <h2 class="h-section on-light">잘못된 습관은<br>시간이 지날수록 굳어집니다</h2>
+    <p class="sub-section on-light" style="color:var(--red);font-weight:700;font-size:15px;">지금 잡지 않으면, 그대로 시험장에 들어가게 됩니다.</p>
+
+    <div class="pricing-highlight">
+      <p class="ph-title">🎁 부담 없이 시작하는 방법</p>
+      <p class="ph-desc">확신이 없다면 <strong>1회 컨설팅(5만원)으로 먼저 확인</strong>하세요.<br>방향이 잡히면 추가 <strong>20만원만</strong> 내시면 4주 관리로 전환됩니다.</p>
+    </div>
+
+    <div class="price-cards">
+      <div class="price-card">
+        <p class="pc-name">1회 컨설팅</p>
+        <p class="pc-price">5만원 <span>/ 1회</span></p>
+        <p class="pc-desc">원인 진단 + 행동 설계 1회.<br>4주 관리 전환 시 추가 20만원만.</p>
+      </div>
+      <div class="price-card featured">
+        <div class="pc-badge">추천</div>
+        <p class="pc-name">4주 관리</p>
+        <p class="pc-price">25만원 <span>/ 4주</span></p>
+        <p class="pc-desc">매일 피드백 + 주간 계획 4주.<br>1회 컨설팅 후 전환 시 추가 20만원.</p>
+      </div>
+    </div>
+
+    <div class="pricing-cta">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSff04h8c13zqpoTQ4xmuKi1fyqK-MWkoL8czwjv42eKtCdWkA/viewform" class="btn-primary">신청서 작성하기</a>
+      <p class="pricing-flow">신청서 제출 → 카카오톡 채널 메시지 → 입금 안내 → 사전 질문지 전송</p>
+    </div>
+  </div>
+</section>
+
+<!-- 최종 CTA -->
+<section class="final-section">
+  <h2>
+    책상에 앉는 순간,<br>
+    고민 없이 바로 시작할 수 있습니다
+  </h2>
+  <p>
+    <strong>단순한 상담이 아닙니다.</strong>
+    지금 공부 방식 전체를 바꾸는 과정입니다.<br>
+    피드백을 받고 실제로 움직일 준비가 된 분만 신청하세요.
+  </p>
+  <div class="final-btns">
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSff04h8c13zqpoTQ4xmuKi1fyqK-MWkoL8czwjv42eKtCdWkA/viewform" class="btn-primary">신청서 작성하기</a>
+    <a href="http://pf.kakao.com/_xhvxlFn/chat" class="kakao-link">💬 1:1 문의: 성적PT 카카오톡 채널</a>
+  </div>
+</section>
+
+<div class="footer">
+  <p>성적PT는 광고 없이 운영됩니다 · 과제 미이행 3회 시 퇴출</p>
+</div>
+
+</body>
+</html>
